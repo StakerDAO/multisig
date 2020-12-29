@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-name: multisig
+name: multisig-proxy
 version: 0
 author: Serokell <hi@serokell.io>
 github: stakerdao/multisig
@@ -67,6 +67,7 @@ default-extensions:
   - UndecidableInstances
   - UndecidableSuperClasses
   - ViewPatterns
+  - NoImplicitPrelude
 
 ghc-options:
   -Weverything
@@ -102,9 +103,12 @@ dependencies:
 
 library:
   source-dirs: src
+  dependencies:
+    - morley
+    - lorentz
 
 executables:
-  myproject:
+  multisig-client:
     main:                Main.hs
     source-dirs:         app
 

@@ -14,5 +14,11 @@ let
   };
   library = project.multisig-proxy.components.library;
   multisig-client = project.multisig-proxy.components.exes.multisig-client;
-  test = project.staker-bridge-web.checks.test;
-  in { inherit library multisig-client test; }
+  test = project.multisig-proxy.checks.test;
+  shell = project.shellFor {
+    packages = ps: with ps; [ multisig-proxy ];
+    withHoogle = false;
+    tools = { cabal = "3.2.0.0"; hpack = "0.34.3"; };
+    exactDeps = true;
+  }; 
+  in { inherit library multisig-client test shell; }

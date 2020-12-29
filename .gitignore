@@ -1,0 +1,5 @@
+# Cabal build directory
+dist-newstyle
+
+# .cabal projetc file
+*.cabal

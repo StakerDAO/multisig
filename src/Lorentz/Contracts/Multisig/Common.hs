@@ -1,3 +1,4 @@
+{-# LANGUAGE RebindableSyntax #-}
 module Lorentz.Contracts.Multisig.Common
   ( updateNonceIfCorrect
   , checkSignatures
@@ -7,7 +8,6 @@ module Lorentz.Contracts.Multisig.Common
 
 import Lorentz
 
-import Lorentz.Contracts.Common (ensureSignatureValid, listToSet)
 import Lorentz.Contracts.Multisig.Error ()
 import Lorentz.Contracts.Multisig.Parameter
 import Lorentz.Contracts.Multisig.Storage
@@ -39,7 +39,7 @@ checkSignatures = do
   stackType @(Signatures : ByteString : Set KeyHash : s)
   map $ do
     unpair;
-    stackType @(PublicKey : Signature : ByteString : Set KeyHash : s)
+    stackType @(PublicKey : TSignature ByteString : ByteString : Set KeyHash : s)
     duupX @4; duupX @2; ensureKeyEligible
     dipN @2 dup; dup ; dip ensureSignatureValid; hashKey
 
@@ -73,13 +73,53 @@ packParameter = do
     )
   dip drop
   stackType @(ValueToSign : _)
-  pack
+  packRaw
 
 ensureKeyEligible :: PublicKey : Set KeyHash : s1 :-> s1
 ensureKeyEligible = do
   dup; hashKey
   dip swap
   mem
+  if Holds
+  then drop
+  else failCustom #invalidSignature
+
+-- | Duplicates first two stack entries.
+dupTop2 :: a ': b ': s :-> a ': b ': a ': b ': s
+dupTop2 = do
+  duupX @2; duupX @2
+
+-- | Converts a list of comparable values to a set,
+-- removes duplicates as a consequence.
+listToSet
+  :: forall a s. (NiceComparable a)
+  => ((List a) : s) :-> ((Set a) : s)
+listToSet = do
+  dip (emptySet @a);
+  iter (do dip (push True); update)
+
+type instance ErrorArg "invalidSignature" = PublicKey
+instance (CustomErrorHasDoc "invalidSignature") where
+  customErrClass = ErrClassActionException
+  customErrDocMdCause =
+    "At least one of the supplied signatures was invalid"
+  customErrArgumentSemantics =
+    Just "one of the signatures was found to be invalid"
+
+type instance ErrorArg "majorityQuorumNotReached" = ()
+instance (CustomErrorHasDoc "majorityQuorumNotReached") where
+  customErrClass = ErrClassActionException
+  customErrDocMdCause =
+    "The number of signatures provided was less than the minimal one"
+  customErrArgumentSemantics =
+    Just "the number of signatures is too small"
+
+ensureSignatureValid
+  :: PublicKey & TSignature ByteString & ByteString & s1 :-> s1
+ensureSignatureValid = do
+  dup
+  dip checkSignature
+  swap
   if Holds
   then drop
   else failCustom #invalidSignature

@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
-
+{-# LANGUAGE RebindableSyntax #-}
 module Lorentz.Contracts.Multisig
   ( Order
   , Parameter (..)
@@ -20,7 +20,6 @@ module Lorentz.Contracts.Multisig
 
 import Lorentz
 
-import Lorentz.Contracts.Common (dupTop2)
 import Lorentz.Contracts.Multisig.Common
 import Lorentz.Contracts.Multisig.Error ()
 import Lorentz.Contracts.Multisig.Parameter

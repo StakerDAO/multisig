@@ -1,0 +1,14 @@
+resolver: lts-16.27
+
+extra-deps:
+  - morley-1.10.0
+  - morley-prelude-0.3.0
+  - lorentz-0.8.0
+  - base58-bytestring-0.1.0
+  - hex-text-0.1.0.0
+  - named-0.3.0.1
+  - vinyl-0.12.1
+  - cryptonite-0.27
+  - uncaught-exception-0.1.0
+  - tasty-hunit-compat-0.2.0.1
+  - show-type-0.1.1

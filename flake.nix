@@ -25,14 +25,15 @@
 	      };
 	    }).combined-eval-on-build
 	  ]);
-	project = pkgs.callPackage {} ./project;
+	project = pkgs.callPackage ./project.nix {};
 	library = project.library;
 	multisig-client = project.multisig-client;
 	test = project.test;
+	shell = project.shell;
       };
     in rec {
       packages = builtins.mapAttrs (system: _: 
-        with packagesFor system; { inherit multisig-client; }
+        with packagesFor system; { inherit library multisig-client shell; }
       ) nixpkgs.legacyPackages;
 
       checks = builtins.mapAttrs (system: _: 

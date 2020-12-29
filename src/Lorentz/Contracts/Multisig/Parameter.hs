@@ -1,3 +1,4 @@
+{-# LANGUAGE RebindableSyntax #-}
 module Lorentz.Contracts.Multisig.Parameter
   ( Order
   , Parameter (..)
@@ -21,17 +22,17 @@ import Michelson.Typed.Haskell.Instr.Sum
 
 import Lorentz.Contracts.Multisig.Error ()
 
-type Signatures = [(PublicKey, Signature)]
+type Signatures = [(PublicKey, TSignature ByteString)]
 
 data Parameter = Parameter
   { order :: Order
   , nonce :: Natural
   , signatures :: Signatures
   } deriving stock Generic
-    deriving anyclass (IsoValue, HasTypeAnn)
+    deriving anyclass (IsoValue, HasAnnotation)
 
-instance ParameterHasEntryPoints Parameter where
-  type ParameterEntryPointsDerivation Parameter = EpdNone
+instance ParameterHasEntrypoints Parameter where
+  type ParameterEntrypointsDerivation Parameter = EpdNone
 
 -- | Action that is going to be executed. May be either some
 -- contract call, or key rotation.
@@ -39,7 +40,7 @@ data Order
   = Call (Lambda () Operation)
   | RotateKeys (Set KeyHash)
   deriving stock Generic
-  deriving anyclass (IsoValue, HasTypeAnn)
+  deriving anyclass (IsoValue, HasAnnotation)
 
 -- | Value that the participants should sign. Includes nonce to
 -- prevent replay attacks and the multisig address to prevent both
@@ -58,7 +59,7 @@ data OrderDest a
 
 type ReceiverParam a =
   ( NiceParameterFull a
-  , ForbidExplicitDefaultEntryPoint a
+  , ForbidExplicitDefaultEntrypoint a
   )
 
 mkTransferOrderGeneric
