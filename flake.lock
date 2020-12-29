@@ -1,0 +1,77 @@
+{
+  "nodes": {
+    "hackage": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1609117793,
+        "narHash": "sha256-TP1PaMMm1m+QxQ+oK+D++Mrd0b5cQdue3Hyfa6mQzW4=",
+        "owner": "input-output-hk",
+        "repo": "hackage.nix",
+        "rev": "ad83265e773aa6be27ad1fdeebe2286427d65ac7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "input-output-hk",
+        "repo": "hackage.nix",
+        "type": "github"
+      }
+    },
+    "haskell-nix": {
+      "locked": {
+        "lastModified": 1609117893,
+        "narHash": "sha256-KAse4GN/9TlagCufOxg0ed8XgRGB+v6mxx4vxsrqsYg=",
+        "owner": "input-output-hk",
+        "repo": "haskell.nix",
+        "rev": "8970673cd07c1c62c13a35c7dba1fcc889487730",
+        "type": "github"
+      },
+      "original": {
+        "owner": "input-output-hk",
+        "repo": "haskell.nix",
+        "rev": "8970673cd07c1c62c13a35c7dba1fcc889487730",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1607131743,
+        "narHash": "sha256-/Ryxiq1AO1mlI+3j2P+Fe7W/RAPFzAhnNdVINAjKVf0=",
+        "owner": "serokell",
+        "repo": "nixpkgs",
+        "rev": "1429aca21de3408c4684cb934f5a8c6a229c223e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "serokell",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "hackage": "hackage",
+        "haskell-nix": "haskell-nix",
+        "nixpkgs": "nixpkgs",
+        "stackage": "stackage"
+      }
+    },
+    "stackage": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1608858131,
+        "narHash": "sha256-Gc2NYvlS+fLVfTh+INXCyw8hFcdc4MRcsXYdiOPpCEw=",
+        "owner": "input-output-hk",
+        "repo": "stackage.nix",
+        "rev": "9d96e7979e52a380a66728a300821cb0c59d71a1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "input-output-hk",
+        "repo": "stackage.nix",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
