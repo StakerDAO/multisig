@@ -7,8 +7,8 @@ let
     modules = [{
       doHaddock = false;
       packages.multisig-proxy = {
-	doHaddock = true;
-	package.ghcOptions = "-Werror";
+        doHaddock = true;
+        package.ghcOptions = "-Werror -O0";
       };
     }];
   };
@@ -20,5 +20,5 @@ let
     withHoogle = false;
     tools = { cabal = "3.2.0.0"; hpack = "0.34.3"; };
     exactDeps = true;
-  }; 
+  };
   in { inherit library multisig-client test shell; }

@@ -17,7 +17,7 @@ description: Multisig proxy contract for Tezos and lightweight client for it
 # TODO: Figure out copyright, before making this public
 copyright: 2020 Serokell <https://serokell.io>
 # TODO: Choose aproppriate license before publishing
-license-file: LICENSE
+# license-file: LICENSE
 
 # We enable all extensions that we consider harmless by default.
 # Maybe it spoils compilation times, we should check it, see INT-162.
@@ -80,6 +80,7 @@ ghc-options:
   -Wno-missing-local-signatures
   -Wno-monomorphism-restriction
   -Wno-implicit-prelude
+  -Wno-unused-do-bind
 
 when:
   - condition: impl(ghc >= 8.10.0)
@@ -100,6 +101,7 @@ dependencies:
   # https://github.com/commercialhaskell/stack/issues/5077
   # Also it's recommended to setup bounds on the version here.
   - base
+  - universum
 
 library:
   source-dirs: src
@@ -111,6 +113,13 @@ executables:
   multisig-client:
     main:                Main.hs
     source-dirs:         app
+    dependencies:
+      - containers
+      - fmt
+      - lorentz
+      - morley
+      - multisig-proxy
+      - optparse-applicative
 
 tests:
   myproject-test:

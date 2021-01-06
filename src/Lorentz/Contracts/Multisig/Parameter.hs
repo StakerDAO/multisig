@@ -122,3 +122,6 @@ mkCallOrderWrap = mkTransferOrderWrap (toMutez 0)
 
 mkRotateKeysOrder :: Set KeyHash -> Order
 mkRotateKeysOrder = RotateKeys
+
+-- mkCallOrder :: Address -> Text -> M.Value -> Order
+-- mkCallOrder address epName untypedValue = error "keks"

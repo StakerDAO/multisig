@@ -1,4 +1,5 @@
 {-# LANGUAGE RebindableSyntax #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
 module Lorentz.Contracts.Multisig.Common
   ( updateNonceIfCorrect
   , checkSignatures
@@ -83,11 +84,6 @@ ensureKeyEligible = do
   if Holds
   then drop
   else failCustom #invalidSignature
-
--- | Duplicates first two stack entries.
-dupTop2 :: a ': b ': s :-> a ': b ': a ': b ': s
-dupTop2 = do
-  duupX @2; duupX @2
 
 -- | Converts a list of comparable values to a set,
 -- removes duplicates as a consequence.

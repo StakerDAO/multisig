@@ -1,5 +1,4 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
-
 module Lorentz.Contracts.Multisig.Error
   () where
 
