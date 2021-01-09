@@ -1,33 +1,30 @@
 module Options
   ( pkHashArg
-  , sigPairOpt
-  , entrypointOpt
-  , nonceOpt
+  , sigPairOption
+  , entrypointOption
+  , nonceOption
   , paramOption
+  , contractOption
+  , multisigContractOption
   ) where
 
 import Universum
 
 import qualified Lorentz as L
-import qualified Michelson.Parser as M
 import qualified Michelson.Untyped as M
 import qualified Options.Applicative as Opt
 
 import Fmt (pretty)
-import Tezos.Crypto (KeyHash, PublicKey, parseKeyHash, parsePublicKey, parseSignature)
-
-keyHashReader :: Opt.ReadM KeyHash
-keyHashReader = Opt.eitherReader $ \addr ->
-   either
-        (Left . mappend "Failed to parse key hash: " . pretty)
-        Right $
-        parseKeyHash $ toText addr
+import Tezos.Crypto (KeyHash, PublicKey, parsePublicKey, parseSignature)
+import Tezos.Address (Address)
+import qualified Morley.CLI as M
+import qualified Util.CLI as M
 
 pkHashArg :: Opt.Parser KeyHash
-pkHashArg = Opt.argument keyHashReader $ Opt.metavar "PK_HASH"
+pkHashArg = Opt.argument M.getReader $ Opt.metavar (M.getMetavar @KeyHash)
 
-sigPairOpt :: Opt.Parser (PublicKey, L.TSignature ByteString)
-sigPairOpt = Opt.option sigPairReader $ mconcat
+sigPairOption :: Opt.Parser (PublicKey, L.TSignature ByteString)
+sigPairOption = Opt.option sigPairReader $ mconcat
   [ Opt.metavar "PK:SIG"
   , Opt.long "signed"
   ]
@@ -44,29 +41,25 @@ sigPairOpt = Opt.option sigPairReader $ mconcat
           sig <- L.TSignature <$> (parseSignature $ toText sigStr)
           pure $ (pk, sig)
 
-entrypointOpt :: Opt.Parser M.EpName
-entrypointOpt = Opt.option entrypointReader $ mconcat
-  [ Opt.metavar "ENTRYPOINT_NAME"
-  , Opt.long "entrypoint"
-  ]
-  where
-    entrypointReader = Opt.eitherReader $ \epStr ->
-      either (Left . mappend "Failed to parse entrypoint name: " . pretty) Right $
-        M.buildEpName $ toText epStr
+entrypointOption :: Opt.Parser M.EpName
+entrypointOption = M.entrypointOption (#name "entrypoint")
+  (#help "entrypoint to call on the target contract")
 
-nonceOpt :: Opt.Parser Natural
-nonceOpt = Opt.option Opt.auto $ mconcat
+nonceOption :: Opt.Parser Natural
+nonceOption = Opt.option Opt.auto $ mconcat
   [ Opt.metavar "NONCE"
   , Opt.long "nonce"
   ]
 
 paramOption :: Opt.Parser M.Value
-paramOption = Opt.option valueReader $ mconcat
-  [ Opt.metavar "MICHELSON_VALUE"
-  , Opt.long "param"
-  ]
-  where
-    valueReader :: Opt.ReadM M.Value
-    valueReader = Opt.eitherReader $ \paramStr ->
-      either (Left . mappend "Failed to parse Michelson value: " . pretty) Right $
-        M.parseExpandValue $ toText paramStr
+paramOption = M.valueOption Nothing (#name "param")
+  (#help "parameter of the call to target contract")
+
+-- | Parse address of the contract to call.
+contractOption :: Opt.Parser Address
+contractOption = M.addressOption Nothing (#name "target-contract")
+  (#help "address of target contract")
+
+multisigContractOption :: Opt.Parser Address
+multisigContractOption = M.addressOption Nothing (#name "multisig-contract")
+  (#help "address of multisig contract")

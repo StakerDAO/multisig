@@ -6,15 +6,9 @@ module Lorentz.Contracts.Multisig
   , Signatures
   , Storage (..)
   , ValueToSign (..)
-
-  , OrderDest (..)
-  , mkCallOrder
-  , mkCallOrderWrap
+  , CallArgs (..)
   , mkRotateKeysOrder
-  , mkTransferOrder
-  , Label
-  , TransferOrderWrapC
-  , mkTransferOrderWrap
+  , mkCallOrder
   , multisigContract
   ) where
 
