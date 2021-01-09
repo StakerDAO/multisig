@@ -102,6 +102,7 @@ dependencies:
   # Also it's recommended to setup bounds on the version here.
   - base
   - universum
+  - constraints
 
 library:
   source-dirs: src
@@ -120,6 +121,9 @@ executables:
       - morley
       - multisig-proxy
       - optparse-applicative
+      - morley-client
+      - named
+      - singletons
 
 tests:
   myproject-test:

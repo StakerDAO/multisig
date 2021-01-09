@@ -1,9 +1,14 @@
 resolver: lts-16.27
 
 extra-deps:
-  - morley-1.10.0
-  - morley-prelude-0.3.0
-  - lorentz-0.8.0
+  - git: https://gitlab.com/morley-framework/morley/
+    commit: 4db337d3512b5cc2ecb1a9f6fea320ba1c69c1e4
+    # nix-sha256: 0z8nkdv320l8qnx0m75vg0lqdllrjl24r7zdbkfwjmhsjg2mc49p
+    subdirs:
+      - code/morley-client
+      - code/morley-prelude
+      - code/lorentz
+      - code/morley
   - base58-bytestring-0.1.0
   - hex-text-0.1.0.0
   - named-0.3.0.1

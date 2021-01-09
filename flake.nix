@@ -17,19 +17,19 @@
   outputs = { self, nixpkgs, haskell-nix, hackage, stackage }:
     let
       packagesFor = system: rec {
-	pkgs = nixpkgs.legacyPackages.${system}.extend
-	  (nixpkgs.lib.foldl nixpkgs.lib.composeExtensions (_: _: { }) [
-	    (haskell-nix.overlays {
-	      sourcesOverride = haskell-nix.sources // {
-		inherit hackage stackage;
-	      };
-	    }).combined-eval-on-build
-	  ]);
-	project = pkgs.callPackage ./project.nix {};
-	library = project.library;
-	multisig-client = project.multisig-client;
-	test = project.test;
-	shell = project.shell;
+        pkgs = nixpkgs.legacyPackages.${system}.extend
+        (nixpkgs.lib.foldl nixpkgs.lib.composeExtensions (_: _: { }) [
+          (haskell-nix.overlays {
+            sourcesOverride = haskell-nix.sources // {
+              inherit hackage stackage;
+            };
+          }).combined-eval-on-build
+        ]);
+        project = pkgs.callPackage ./project.nix {};
+        library = project.library;
+        multisig-client = project.multisig-client;
+        test = project.test;
+        shell = project.shell;
       };
     in rec {
       packages = builtins.mapAttrs (system: _: 
