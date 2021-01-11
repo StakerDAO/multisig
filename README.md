@@ -1,6 +1,6 @@
 # Tezos Multisig Proxy
 
-**TODO** Write short description here
+Utility to sign proxy contract tools with multisig contract.
 
 ## Building
 - Using _Nix_: `nix-build -A msig-client` or `nix build .#msig-client` if you are have `nix` of supporting _Flakes_
