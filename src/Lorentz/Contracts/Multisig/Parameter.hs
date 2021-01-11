@@ -9,12 +9,15 @@ module Lorentz.Contracts.Multisig.Parameter
   , mkRotateKeysOrder
   ) where
 
-import Lorentz hiding (Call)
-import Data.Constraint ((\\))
-import Michelson.Typed
+import Universum
+
 import qualified Michelson.TypeCheck as M
 import qualified Michelson.Untyped as M
-import Universum
+import qualified Michelson.Untyped as U
+
+import Data.Constraint ((\\))
+import Lorentz hiding (Call)
+import Michelson.Typed
 
 import Lorentz.Contracts.Multisig.Error ()
 
@@ -79,9 +82,9 @@ mkCallOrder CallArgs {..} epType =
           Dict <- nestedBigMapsAbsense (sing @t)
           Just $
             DROP `Seq`
-            PUSH (VAddress (EpAddress caContract caEntrypoint)) `Seq`
+            PUSH (VAddress (EpAddress caContract U.DefEpName)) `Seq`
             CONTRACT starNotes caEntrypoint `Seq`
-            IF_NONE (PUSH (VString [mt|invalidStakerContract|]) `Seq` FAILWITH)
+            IF_NONE (PUSH (VString [mt|invalidParamType|]) `Seq` FAILWITH)
                 Nop `Seq`
             PUSH (VMutez zeroMutez) `Seq`
             PUSH tcValue `Seq`

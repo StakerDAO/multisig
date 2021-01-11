@@ -7,14 +7,14 @@ import Universum
 import qualified Data.Map as Map
 import qualified Lorentz as L
 import qualified Lorentz.Contracts.Multisig as Msig
-import qualified Options.Applicative as Opt
+import qualified Michelson.Untyped as MU
 import qualified Morley.Client as MC
 import qualified Morley.Client.RPC as MC
-import Tezos.Crypto (sign, formatSignature, formatPublicKey, Signature, toPublic)
-import qualified Michelson.Untyped as MU
 import qualified Morley.Micheline as M
+import qualified Options.Applicative as Opt
 
 import Data.Set (fromList)
+import Tezos.Crypto (Signature, formatPublicKey, formatSignature, sign, toPublic)
 
 import Parser
 
@@ -35,7 +35,7 @@ runNoClient conf action = do
 data AppError =
   UnknownEntrypoint MU.EpName
   | GetNonceError M.FromExpressionError
-  | UnknownSkAlias
+  | UnknownSkAlias Text
   deriving stock Show
   deriving anyclass Exception
 
@@ -112,7 +112,7 @@ main = Opt.execParser cmdParser >>= \case
           (MC.transferNoClient feePayerSk)
           suMultisigContract suCommand suNonce suSignatures
       AliasSk al -> runWithClient suClientConfig $ do
-        addr <- maybe (throwM UnknownSkAlias) pure =<<
+        addr <- maybe (throwM $ UnknownSkAlias $ show al) pure =<<
                   MC.resolveAddressMaybe al
         doCall
           (MC.transfer addr)
@@ -135,7 +135,6 @@ doCall
 doCall transferF msigAddr cmd mNonce signatures = do
   order <- mkOrder cmd
   nonce <- maybe (nextNonce msigAddr) pure mNonce
+  let val = L.toVal $ Msig.Parameter {..}
   transferF msigAddr
-    L.zeroMutez
-    (MU.EpNameUnsafe "Default")
-    (L.toVal $ Msig.Parameter {..}) Nothing
+    L.zeroMutez (MU.EpNameUnsafe "default") val Nothing
