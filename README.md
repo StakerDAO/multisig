@@ -3,7 +3,8 @@
 **TODO** Write short description here
 
 ## Building
-- Using Nix: `nix-build -A msig-client` or `nix build .#msig-client` if you are have `nix` of supporting _Flakes_
+- Using _Nix_: `nix-build -A msig-client` or `nix build .#msig-client` if you are have `nix` of supporting _Flakes_
+- Using `stack`: TODO
 
 ## Deploying contract
 
@@ -30,11 +31,55 @@ Precodition: `tezos-client` is available on `$PATH`.
    ```bash
    tezos-client get contract storage for 'multisig-proxy' 
    ```
-   The only number in storage is `nonce`. For example for storage below `nonce` is equals to 0,
+   The only number in storage is `nonce`. For example for storage below `nonce` is equals to 0.
    ```
    Pair { "tz1dPgGGVAyuiKN9nw4jPSGZGiyBt868h8oo" ;
           "tz1evrHo6ZcDjigG6dDuQF3rvVTMMmEeHE9x" ;
           "tz1fdjt7ZdwYkkyHj3fB3YBLsvHv2ZnFSBpc" }
         0
    ```
-2. 
+2. Sign payload with at least `Math.ceil(guard_keys_n / 2)`. In order to obtain signature use
+   `sign` subcommand with `call` operation.
+   ```bash
+   multisig-client sign call --entrypoint 'A' --param 'Unit' \ 
+     --target-contract 'KT1KWchg1x4FhGTiML9CEr6AcMuvHwxJNBnp' \
+     --multisig-contract 'KT1EiWoQC26VoYtxmDy67sbMrXQTETuWGbVe' \ 
+     --nonce 1 --sk-alias msig1 -I '$PATH_TO_TEZOS_CLIENT' > sig1
+   ```
+   where 
+   - `--nonce` is `nonce` extracted from contract storage + 1, 
+   - `--entrypoint` is entrypoint you desire to be called by proxy contract
+   - `--param` is param which would be passed to contract by proxy contract 
+   - `--target-contract` is contract address, which would be called by proxy
+   - `--sk-alias` is alias for Secret Key from `tezos-client` wallet you want to sign with
+   - `-I` is path to `tezos-client` binary
+3. Use `submit` subcommand to submit you payload supplied with enough signatures.
+   ```bash
+   multisig-client submit call --entrypoint 'A' --param 'Unit' \
+     --target-contract 'KT1KWchg1x4FhGTiML9CEr6AcMuvHwxJNBnp' \
+     --multisig-contract 'KT1EiWoQC26VoYtxmDy67sbMrXQTETuWGbVe' \
+     --nonce 1 --payer-alias alice \
+     --signed 'edpkvErJXfHVsMUzJdWhLZqcDBYth6xuRn7XjmkJB2k9ALhHRQpZdR:edsigu5yCm4Sj1axYVo1Lqcfgk71i6crERb8BhaNgbZfQzUkBaawAkaxWpWkMiyK4UCsspQPWEvTSeSpG8iSswytxV6mpg3XKCi' \
+     --signed 'edpkvTUVhBAJ5hDMVGUPzyK9vAfRYg6zXXCmiAELksaTxhtnwPv2gR:edsigtmQ4B8hHQ5FmJ5gCi1QQadQdiCfMT8UH66UznqBp9BwtTZCsHGELfTRts4neFTuCD31HTjLoUZzcrUJW1sc7wf6NuYn8oi' \
+     --signed 'edpkuTyjn3QvJmk6kuRqDQfRNinbnVYWWZc2HCWojY16N5DtLtejgV:edsigtYJHVN6UwR4uzhBKGjHwm6DLfjuKtnexd3YJgK5rRPA2C272JZg9p6Ac627aspEKtZetguuAETaFoSDQiL9wpfwJNSmrVj' \
+     -I '$PATH_TO_TEZOS_CLIENT'
+   ```
+   This command contains some options from previous step, but also couple new ones inculding: 
+   - `--payer-alias` specifies from which account to originate a transaction
+   - `--signed` option specifies public key and signature separated with `:`
+   
+## Rotating keys
+
+The whole process is similar with making proxy calls. The only difference is that you would have to specify `rotate-keys` istead of `call` operation in both `sign` and `submit` operations, but also instead of providing data to make a proxy call you have to specify new guard publick key hashes instead.
+Example for one of `sign` commands: 
+
+``` bash
+multisig-client sign rotate-keys 
+  tz1PJ6tkQqvomEk8p7VKw7FAC5PDxCu76Dz5 \
+  tz1ZQ1H7xHjThAyACsJbR4nzqxUr8nwyQaym \
+  tz1S3AwY9TzBwtu5YSTGrm5WsTPstLbEks11 \ 
+  --multisig-contract 'KT1PUWVBbWpYjh8UfaZMqcmKufHmu4hWnwgs' \
+  --nonce 1 --sk-alias msig1 \
+  -I '$PATH_TO_TEZOS_CLIENT' > sig1
+```
+  
