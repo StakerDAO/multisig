@@ -4,7 +4,9 @@
 
 ## Building
 - Using _Nix_: `nix-build -A msig-client` or `nix build .#msig-client` if you are have `nix` of supporting _Flakes_
-- Using `stack`: TODO
+- Using `stack`: `stack build`
+
+When using `stack`, instead of `multisig-client` in description below use `stack exec multisig-client --`.
 
 ## Deploying contract
 
@@ -70,8 +72,9 @@ Precodition: `tezos-client` is available on `$PATH`.
    
 ## Rotating keys
 
-The whole process is similar with making proxy calls. The only difference is that you would have to specify `rotate-keys` istead of `call` operation in both `sign` and `submit` operations, but also instead of providing data to make a proxy call you have to specify new guard publick key hashes instead.
-Example for one of `sign` commands: 
+The whole process is similar to making proxy calls. Difference is that you would have to specify `rotate-keys` instead of `call` operation in both `sign` and `submit` operations. Also instead of providing data to make a proxy call you have to specify public key hashes of the new multisig committee instead.
+
+Example: 
 
 ``` bash
 multisig-client sign rotate-keys 
