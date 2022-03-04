@@ -8,17 +8,15 @@ module Options
   , multisigContractOption
   ) where
 
-import Universum
-
 import qualified Lorentz as L
-import qualified Michelson.Untyped as M
+import qualified Morley.Michelson.Untyped as M
 import qualified Options.Applicative as Opt
 
 import Fmt (pretty)
-import Tezos.Crypto (KeyHash, PublicKey, parsePublicKey, parseSignature)
-import Tezos.Address (Address)
 import qualified Morley.CLI as M
-import qualified Util.CLI as M
+import Morley.Tezos.Address (Address)
+import Morley.Tezos.Crypto (KeyHash, PublicKey, parsePublicKey, parseSignature)
+import qualified Morley.Util.CLI as M
 
 pkHashArg :: Opt.Parser KeyHash
 pkHashArg = Opt.argument M.getReader $ Opt.metavar (M.getMetavar @KeyHash)

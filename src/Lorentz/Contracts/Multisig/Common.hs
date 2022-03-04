@@ -1,5 +1,5 @@
 {-# LANGUAGE RebindableSyntax #-}
-{-# OPTIONS_GHC -Wno-orphans #-}
+{-# OPTIONS_GHC -Wno-orphans -Wno-unused-do-bind #-}
 module Lorentz.Contracts.Multisig.Common
   ( updateNonceIfCorrect
   , checkSignatures

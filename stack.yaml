@@ -1,19 +1,31 @@
-resolver: lts-16.27
+resolver: lts-18.10
 
 extra-deps:
-  - git: https://gitlab.com/morley-framework/morley/
-    commit: 4db337d3512b5cc2ecb1a9f6fea320ba1c69c1e4
-    # nix-sha256: 0z8nkdv320l8qnx0m75vg0lqdllrjl24r7zdbkfwjmhsjg2mc49p
-    subdirs:
-      - code/morley-client
-      - code/morley-prelude
-      - code/lorentz
-      - code/morley
-  - base58-bytestring-0.1.0
-  - hex-text-0.1.0.0
-  - named-0.3.0.1
-  - vinyl-0.12.1
-  - cryptonite-0.27
-  - uncaught-exception-0.1.0
-  - tasty-hunit-compat-0.2.0.1
+  - lorentz-0.13.2@sha256:891975656ee069a9468e9607885354de1849cdbb117f9c259fb1c102c83bd429,4247
+  - morley-1.16.2@sha256:b5b686f12f8cb81254b516429f6c39a897617bd2adde9440ce1e7135e03414af,10017
+  - morley-client-0.1.0@sha256:48923b91184a79043de4036d7adbe1e87feeb28b80e147f9c05314ee0b3f3110,8283
+  - morley-prelude-0.5.0@sha256:ae44467bdec7a2c1567b91441b2989126e5f79b5625cb725933d66547a3c3f33,2541
+  - git: https://github.com/serokell/base-noprelude.git
+    commit: 1282e0b992b00089d55228a2aa9edc4a3581c319
+  - hex-text-0.1.0.4
   - show-type-0.1.1
+  - named-0.3.0.1@sha256:2975d50c9c5d88095026ffc1303d2d9be52e5f588a8f8bcb7003a04b79f10a06,2312
+  - bitvec-1.0.3.0@sha256:f69ed0e463045cb497a7cf1bc808a2e84ea0ce286cf9507983bb6ed8b4bd3993,3977
+  - co-log-0.4.0.1@sha256:3d4c17f37693c80d1aa2c41669bc3438fac3e89dc5f479e57d79bc3ddc4dfcc5,5087
+  - colourista-0.1.0.1@sha256:98353ee0e2f5d97d2148513f084c1cd37dfda03e48aa9dd7a017c9d9c0ba710e,3307
+  - ansi-terminal-0.10.3@sha256:e2fbcef5f980dc234c7ad8e2fa433b0e8109132c9e643bc40ea5608cd5697797,3226
+
+  # Packages by Adjoint (somewhat unmaintained, hence they require constraints on their deps)
+  - galois-field-1.0.2
+  - elliptic-curve-0.3.0
+  - pairing-1.1.0
+  # Required by galois-field.
+  - protolude-0.2.4
+  - poly-0.4.0.0
+  # Required by pairing.
+  - groups-0.4.1.0
+  # For keyed BLAKE2b and NaCl secret box
+  - crypto-sodium-0.0.5.0
+  # Dependencies of crypto-sodium
+  - NaCl-0.0.5.0
+  - libsodium-1.0.18.2

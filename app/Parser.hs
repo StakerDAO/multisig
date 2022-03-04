@@ -8,18 +8,16 @@ module Parser
   , SubmitCliCommand (..)
   ) where
 
-import Universum
-
 import qualified Options.Applicative as Opt
 
-import Options.Applicative (command, helper, info, progDesc)
-import Tezos.Crypto (KeyHash, SecretKey)
-import Tezos.Address (Address)
 import qualified Morley.CLI as M
-import Util.CLI (mkCLOptionParser)
 import qualified Morley.Client as M
+import Morley.Tezos.Address (Address)
+import Morley.Tezos.Crypto (KeyHash, SecretKey)
+import Morley.Util.CLI (mkCLOptionParser)
+import Options.Applicative (command, helper, info, progDesc)
 
-import Lorentz.Contracts.Multisig (Signatures, CallArgs (..))
+import Lorentz.Contracts.Multisig (CallArgs(..), Signatures)
 
 import Options
 
@@ -139,6 +137,3 @@ cmdParser = info (helper <*> cmdImpl) (progDesc exeDesc)
     proxyCallSubprs =
       mkCmdPrs "call" "Print argument for msig to make proxy call" $
          Call <$> (CallArgs <$> entrypointOption <*> paramOption <*> contractOption)
-
-
-

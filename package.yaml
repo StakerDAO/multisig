@@ -67,7 +67,6 @@ default-extensions:
   - UndecidableInstances
   - UndecidableSuperClasses
   - ViewPatterns
-  - NoImplicitPrelude
 
 ghc-options:
   -Weverything
@@ -88,6 +87,7 @@ when:
       - -Wno-prepositive-qualified-module
       - -Wno-inferred-safe-imports
       - -Wno-missing-safe-haskell-mode
+      - -Wno-unused-packages
 
 # Note that `hpack` (apparently) concatenates lists automatically.
 # So if you define `dependencies` for a component, they will be concatenated
@@ -100,15 +100,15 @@ dependencies:
   # but it breaks `stack repl` (`cabal repl` works fine).
   # https://github.com/commercialhaskell/stack/issues/5077
   # Also it's recommended to setup bounds on the version here.
-  - base
-  - universum
-  - constraints
+  - base-noprelude
+  - morley-prelude
 
 library:
   source-dirs: src
   dependencies:
-    - morley
+    - constraints
     - lorentz
+    - morley
 
 executables:
   multisig-client:
@@ -124,31 +124,3 @@ executables:
       - morley-client
       - named
       - singletons
-
-tests:
-  myproject-test:
-    main:        Main.hs
-    source-dirs: test
-    # We often use tasty-discover.
-    build-tools: tasty-discover:tasty-discover
-
-    ghc-options:
-    # tasty runs tests in parallel, so using multiple threads should be useful.
-    - -threaded
-    # should be harmless, but helps some people analyse something :shrug:
-    - -eventlog
-
-    # Enable -N to use multiple threads.
-    # Increase allocation area by using the recommended -A64m option.
-    # Also increase the allocation area for large objects with -AL256m,
-    # since this area is shared between all threads and thus with high -N
-    # values get used up too soon.
-    #
-    # With these options tests usually run faster.
-    #
-    # Weird quoting is required for cabal to correctly pass this as _one_ option,
-    # otherwise it splits by spaces.
-    - '"-with-rtsopts=-N -A64m -AL256m"'
-
-    dependencies:
-    - tasty

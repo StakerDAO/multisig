@@ -2,19 +2,20 @@ module Main
   ( main
   ) where
 
-import Universum
-
 import qualified Data.Map as Map
+import Fmt (pretty)
 import qualified Lorentz as L
 import qualified Lorentz.Contracts.Multisig as Msig
-import qualified Michelson.Untyped as MU
 import qualified Morley.Client as MC
 import qualified Morley.Client.RPC as MC
 import qualified Morley.Micheline as M
+import qualified Morley.Michelson.Untyped as MU
 import qualified Options.Applicative as Opt
 
 import Data.Set (fromList)
-import Tezos.Crypto (Signature, formatPublicKey, formatSignature, sign, toPublic)
+import Morley.Tezos.Address (Address(..))
+import Morley.Tezos.Crypto
+  (SecretKey, Signature, formatPublicKey, formatSignature, hashKey, sign, toPublic)
 
 import Parser
 
@@ -27,10 +28,15 @@ runWithClient conf action = do
 
 runNoClient
   :: MC.MorleyClientConfig
-  -> MC.MorleyNoClientM a -> IO a
-runNoClient conf action = do
-  env <- MC.mkMorleyNoClientEnv conf
-  MC.runMorleyNoClientM env action
+  -> [SecretKey]
+  -> MC.MorleyOnlyRpcM a -> IO a
+runNoClient MC.MorleyClientConfig{..} skeys action = do
+  case mccEndpointUrl of
+    Just ep -> do
+      env <- MC.mkMorleyOnlyRpcEnv skeys ep mccVerbosity
+      MC.runMorleyOnlyRpcM env action
+    Nothing ->
+      error "Endpoint URL must be specified"
 
 data AppError =
   UnknownEntrypoint MU.EpName
@@ -97,19 +103,20 @@ main = Opt.execParser cmdParser >>= \case
   Sign (SignCliCommand {..}) ->
     case siSk of
       Sk sk ->
-        runNoClient siClientConfig $
-        signDo (sign sk) (toPublic sk)
+        runNoClient siClientConfig [sk] $
+        signDo (liftIO . sign sk) (toPublic sk)
           siNonce siCommand siMultisigContract
       AliasSk al ->
         runWithClient siClientConfig $ do
         pk <- MC.getPublicKey al
-        signDo (MC.signBytes al) pk
+        signDo (MC.signBytes al Nothing) pk
           siNonce siCommand siMultisigContract
   Submit (SubmitCliCommand {..}) -> do
     opHash <- case suFeePayer of
-      Sk feePayerSk -> runNoClient suClientConfig $
-        doCall
-          (MC.transferNoClient feePayerSk)
+      Sk feePayerSk -> runNoClient suClientConfig [feePayerSk] $
+        let feePayerAddr = KeyAddress $ hashKey $ toPublic feePayerSk
+        in doCall
+          (MC.transfer feePayerAddr)
           suMultisigContract suCommand suNonce suSignatures
       AliasSk al -> runWithClient suClientConfig $ do
         addr <- maybe (throwM $ UnknownSkAlias $ show al) pure =<<
@@ -117,7 +124,7 @@ main = Opt.execParser cmdParser >>= \case
         doCall
           (MC.transfer addr)
           suMultisigContract suCommand suNonce suSignatures
-    putTextLn $ "Submitted operation " <> opHash
+    putTextLn $ "Submitted operation " <> pretty opHash
 
 doCall
   :: MC.HasTezosRpc m
@@ -126,15 +133,15 @@ doCall
        -> MU.EpName
        -> L.Value (L.ToT Msig.Parameter)
        -> Maybe L.Mutez
-       -> m Text )
+       -> m MC.OperationHash )
   -> L.Address
   -> MsigCommand
   -> Maybe Natural
   -> Msig.Signatures
-  -> m Text
+  -> m MC.OperationHash
 doCall transferF msigAddr cmd mNonce signatures = do
   order <- mkOrder cmd
   nonce <- maybe (nextNonce msigAddr) pure mNonce
   let val = L.toVal $ Msig.Parameter {..}
   transferF msigAddr
-    L.zeroMutez (MU.EpNameUnsafe "default") val Nothing
+    L.zeroMutez (MU.UnsafeEpName "default") val Nothing
