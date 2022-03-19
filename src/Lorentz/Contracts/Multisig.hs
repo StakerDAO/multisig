@@ -1,5 +1,5 @@
-{-# OPTIONS_GHC -Wno-orphans #-}
 {-# LANGUAGE RebindableSyntax #-}
+{-# OPTIONS_GHC -Wno-orphans -Wno-unused-do-bind #-}
 module Lorentz.Contracts.Multisig
   ( Order
   , Parameter (..)
@@ -29,7 +29,7 @@ multisigContract = do
   dup; dip updateNonceIfCorrect
   dupTop2; checkSignatures
   toField #order
-  caseT $
+  caseT
     ( #cCall /-> do
         unit; exec
         dip nil; cons; pair

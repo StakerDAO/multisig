@@ -1,4 +1,3 @@
-{-# LANGUAGE RebindableSyntax #-}
 module Lorentz.Contracts.Multisig.Parameter
   ( Order (..)
   , Parameter (..)
@@ -9,15 +8,13 @@ module Lorentz.Contracts.Multisig.Parameter
   , mkRotateKeysOrder
   ) where
 
-import Universum
-
-import qualified Michelson.TypeCheck as M
-import qualified Michelson.Untyped as M
-import qualified Michelson.Untyped as U
+import qualified Morley.Michelson.TypeCheck as M
+import qualified Morley.Michelson.Untyped as M
+import qualified Morley.Michelson.Untyped as U
 
 import Data.Constraint ((\\))
 import Lorentz hiding (Call)
-import Michelson.Typed
+import Morley.Michelson.Typed
 
 import Lorentz.Contracts.Multisig.Error ()
 
@@ -67,28 +64,32 @@ data MkCallOrderError =
 
 mkCallOrder
   :: CallArgs
-  -> M.Type
+  -> M.Ty
   -> Either MkCallOrderError Order
 mkCallOrder CallArgs {..} epType =
   withUType epType $ \(_notes :: Notes t) -> do
-    (tcValue :: Value t) <- first (WrongParameter . Just) $
+    (tcValue :: Value t) <- first (WrongParameter . Just) $ M.typeCheckingWith def $
       M.typeVerifyParameter mempty caParam
     let lam = do
+          let s = sing @t
           -- For tcValue
-          Dict <- contractTypeAbsense (sing @t)
-          Dict <- bigMapAbsense (sing @t)
+          Dict <- contractTypeAbsense s
+          Dict <- bigMapAbsense s
           -- For CONTRACT
-          Dict <- opAbsense (sing @t)
-          Dict <- nestedBigMapsAbsense (sing @t)
-          Just $
-            DROP `Seq`
-            PUSH (VAddress (EpAddress caContract U.DefEpName)) `Seq`
-            CONTRACT starNotes caEntrypoint `Seq`
-            IF_NONE (PUSH (VString [mt|invalidParamType|]) `Seq` FAILWITH)
-                Nop `Seq`
-            PUSH (VMutez zeroMutez) `Seq`
-            PUSH tcValue `Seq`
-            TRANSFER_TOKENS
+          Dict <- opAbsense s
+          Dict <- nestedBigMapsAbsense s
+          case checkTicketPresence s of
+            TicketPresent -> Nothing
+            TicketAbsent ->
+              Just $
+                DROP `Seq`
+                PUSH (VAddress (EpAddress caContract U.DefEpName)) `Seq`
+                CONTRACT starNotes caEntrypoint `Seq`
+                IF_NONE (PUSH (VString [mt|invalidParamType|]) `Seq` FAILWITH)
+                    Nop `Seq`
+                PUSH (VMutez zeroMutez) `Seq`
+                PUSH tcValue `Seq`
+                TRANSFER_TOKENS
     maybe (Left $ WrongParameter Nothing)
       (\l ->
         pure $ Call $
